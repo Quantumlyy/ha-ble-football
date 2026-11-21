@@ -72,18 +72,16 @@ Positions are a weighted average of the node positions, weighted by signal stren
 |---|---|---|
 | `footfall-door-a` | M5Stack CoreS3 | The two door nodes are the same model, so their readings compare directly. |
 | `footfall-door-b` | M5Stack CoreS3 | |
-| `footfall-side-c` | ESP32-S3-DevKitC-1 | |
-| `footfall-side-d` | ESP32-C6-DevKitC-1 | Single core, so it scans only while Home Assistant is connected (`common/single-core.yaml`). |
+| `footfall-side-c` | ESP32-S3-DevKitC-1 | The two side nodes are a matched pair as well. |
+| `footfall-side-d` | ESP32-S3-DevKitC-1 | |
 
-The two side nodes are different models from the door nodes and from each other. That is fine on the side walls, where a small difference matters least, but calibrate them: see [Mixed boards](#mixed-boards).
-
-Why the C6 goes on a side wall: a visit needs two nodes to hear the device, and both doors plus the other side node still cover that if the C6 ever drops off WiFi for a moment. The door nodes decide entry and exit, so those stay on the dual-core boards.
+All four are dual-core ESP32-S3 and run the same firmware build. The side pair is a different model from the door pair, so compare the two models once before mounting: see [Mixed boards](#mixed-boards).
 
 Spares and boards that cannot be used:
 
 | Board | |
 |---|---|
-| ESP32-C6-DevKitC-1 (3 more) | Spares. To swap one in, set `board: esp32-c6-devkitc-1` in the node file and add the `single_core` package line, as `side-d.yaml` does. |
+| ESP32-C6-DevKitC-1 (4) | Spares. Single core, so WiFi and Bluetooth scanning compete. To swap one in, add these two lines to the node file: `board: esp32-c6-devkitc-1` under `substitutions:`, and `single_core: !include common/single-core.yaml` under `packages:`. The second makes it scan only while Home Assistant is connected. Prefer a side-wall position for it. |
 | ESP32-H2-DevKitM-1 | No WiFi, cannot be used. |
 | nRF52-DK | No WiFi, cannot be used. |
 
@@ -214,10 +212,10 @@ Different board models hear the same phone at slightly different strengths. To e
 
 1. Before mounting, put all four boards side by side and a single phone 2 m away, with no other devices closer.
 2. After a few minutes, compare the four Strongest signal readings.
-3. Take the two CoreS3 door nodes as the reference. If another board reads, say, 4 dB lower than they do, give it `rssi_offset: 4` in `configuration.yaml`; if it reads 3 dB higher, `rssi_offset: -3`:
+3. Take the two CoreS3 door nodes as the reference. If the dev kits read, say, 4 dB lower than they do, give both side nodes `rssi_offset: 4` in `configuration.yaml`; if they read higher, use a negative number:
 
    ```yaml
-   footfall-side-c: { x: 2.8, y: 3.2, rssi_offset: -3 }
+   footfall-side-c: { x: 2.8, y: 3.2, rssi_offset: 4 }
    footfall-side-d: { x: 2.8, y: 0, rssi_offset: 4 }
    ```
 

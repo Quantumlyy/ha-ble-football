@@ -1,11 +1,9 @@
-# Footfall node "side-d". Planned hardware: ESP32-C6-DevKitC-1.
+# Footfall node "side-d". Planned hardware: ESP32-S3-DevKitC-1.
 # Position and role are set in Home Assistant
 # (ble_footfall: nodes: footfall-side-d), not here.
 substitutions:
   name: footfall-side-d
   friendly_name: Footfall side D
-  board: esp32-c6-devkitc-1
 
 packages:
   node: !include common/footfall-node.yaml
-  single_core: !include common/single-core.yaml
