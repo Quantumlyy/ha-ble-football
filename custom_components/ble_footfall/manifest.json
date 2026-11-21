@@ -3,9 +3,9 @@
   "name": "BLE Footfall",
   "after_dependencies": ["recorder"],
   "codeowners": ["@Quantumlyy"],
-  "documentation": "https://github.com/Quantumlyy/ble-footfall",
+  "documentation": "https://github.com/Quantumlyy/ha-ble-football",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/Quantumlyy/ble-footfall/issues",
+  "issue_tracker": "https://github.com/Quantumlyy/ha-ble-football/issues",
   "requirements": [],
   "version": "0.1.0"
 }
