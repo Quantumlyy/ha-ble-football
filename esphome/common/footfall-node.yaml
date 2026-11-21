@@ -35,6 +35,14 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  # If the node cannot join the WiFi above (wrong password, different site),
+  # it opens its own network. Join it with a phone and a page appears where
+  # the right WiFi can be entered. No reflashing needed.
+  ap:
+    ssid: ${friendly_name}
+    password: !secret fallback_ap_password
+
+captive_portal:
 
 # The day number from Home Assistant's clock goes into the id hash, so every
 # node rotates ids at the same moment (00:00 UTC).

@@ -1,0 +1,22 @@
+# Add this to Home Assistant's configuration.yaml and restart.
+#
+# Node names must match the ESPHome node names (footfall-door-a, ...).
+# x and y are in metres from any corner you like; only relative positions matter.
+# Give the two nodes that sit at a door a "door" label.
+
+ble_footfall:
+  nodes:
+    footfall-door-a: { x: 0, y: 2, door: A }
+    footfall-door-b: { x: 8, y: 2, door: B }
+    footfall-side-c: { x: 4, y: 4 }
+    footfall-side-d: { x: 4, y: 0 }
+
+  # Everything below is optional; these are the defaults.
+  # rssi_at_1m: -60          # RSSI of a typical phone 1 m from a node
+  # path_loss_exponent: 2.7  # 2.0 open space, 3+ cluttered
+  # enter_rssi: -70          # one node must hear the device this strongly
+  # confirm_rssi:            # two nodes must reach this; derived from the layout if unset
+  # confirm_reach: 0.75      # used for the derived value: share of the smallest node spacing
+  # gone_after: 20           # seconds of silence that end a visit
+  # max_dwell: 600           # seconds; anything staying longer is not footfall
+  # min_hits: 3              # node reports needed before a device is taken seriously
