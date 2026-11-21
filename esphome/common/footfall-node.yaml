@@ -1,0 +1,86 @@
+# Shared firmware for every footfall node. Do not flash this file directly:
+# flash door-a.yaml, door-b.yaml, side-c.yaml or side-d.yaml, which include it.
+#
+# Each node listens passively for BLE advertisements and, every report interval,
+# sends Home Assistant one "esphome.ble_footfall" event listing the devices it
+# heard and how strongly. All counting happens in the ble_footfall integration.
+
+substitutions:
+  board: esp32dev          # ESP32-DevKitC. For an S3 kit use esp32-s3-devkitc-1.
+  report_interval: 2s      # Keep in step with the integration's fix_window.
+  rssi_floor: "-90"        # dBm. Anything weaker is ignored on the node.
+  salt: !secret footfall_salt   # Must be identical on all nodes.
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  includes:
+    - common/footfall.h
+
+esp32:
+  board: ${board}
+  framework:
+    type: esp-idf
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# The day number from Home Assistant's clock goes into the id hash, so every
+# node rotates ids at the same moment (00:00 UTC).
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  # Placement aid: how many devices this node hears, averaged per minute.
+  - platform: template
+    id: devices_heard
+    name: "Devices heard"
+    icon: mdi:bluetooth
+    entity_category: diagnostic
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - throttle_average: 60s
+
+  - platform: wifi_signal
+    name: "WiFi signal"
+    update_interval: 60s
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: false          # passive: listen only, never send scan requests
+  on_ble_advertise:        # no mac_address filter = every advertisement
+    - then:
+        - lambda: footfall::observe(x.address_uint64(), x.get_rssi(), ${rssi_floor});
+
+interval:
+  - interval: ${report_interval}
+    then:
+      - lambda: id(devices_heard).publish_state(footfall::pending());
+      - if:
+          condition:
+            and:
+              - api.connected:
+              - lambda: return id(ha_time).now().is_valid() && footfall::pending() > 0;
+          then:
+            - homeassistant.event:
+                event: esphome.ble_footfall
+                data:
+                  node: ${name}
+                  devs: !lambda |-
+                    return footfall::drain("${salt}", (uint32_t) (id(ha_time).now().timestamp / 86400));
+          else:
+            # Not connected or no valid clock yet: drop the interval, never queue it.
+            - lambda: footfall::clear();

@@ -1,0 +1,9 @@
+# Footfall node "door-a". Position and role are set in Home Assistant
+# (ble_footfall: nodes: footfall-door-a), not here.
+substitutions:
+  name: footfall-door-a
+  friendly_name: Footfall door A
+  # board: esp32-s3-devkitc-1   # uncomment if this node is an S3 kit
+
+packages:
+  node: !include common/footfall-node.yaml
