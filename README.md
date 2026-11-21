@@ -27,28 +27,13 @@ Nobody is identified. The boards only report a scrambled id that changes every d
 
 Four nodes in a diamond: one at each door, one on each side wall.
 
-![Four nodes in a diamond between two doors](docs/layout.svg)
+<img src="docs/layout.png" width="720" alt="Four nodes in a diamond between two doors, with a counted path through both doors and an uncounted path outside">
 
 Only positions matter. The boards' antennas hear in all directions, so there is no need to aim them.
 
 ### Data flow
 
-```mermaid
-flowchart LR
-    devices(["Phones, watches, earbuds"])
-    subgraph nodes ["4 x ESP32 with ESPHome"]
-        direction TB
-        scan["Listen for BLE adverts"] --> strongest["Keep strongest RSSI<br/>per device, per 2 s"] --> hash["Replace MAC with<br/>salted daily id"]
-    end
-    subgraph ha ["Home Assistant: ble_footfall"]
-        direction TB
-        merge["Merge reports by id"] --> position["Estimate position"] --> classify["Classify when the<br/>device has gone"]
-    end
-    devices -- "BLE adverts" --> nodes
-    nodes -- "esphome.ble_footfall<br/>event every 2 s" --> ha
-    ha --> sensors["Counter sensors"]
-    ha --> visit["ble_footfall_visit event"]
-```
+<img src="docs/data-flow.png" width="520" alt="Data flow: devices advertise, four ESP32 nodes listen and anonymise, Home Assistant merges, positions and counts">
 
 Each node sends one small event every two seconds, for example:
 
@@ -59,46 +44,13 @@ devs: "1a2b3c4d:-58;9f8e7d6c:-74;"
 
 ### One person walking through
 
-```mermaid
-sequenceDiagram
-    participant P as Phone
-    participant A as door-a
-    participant S as side-c and side-d
-    participant B as door-b
-    participant HA as Home Assistant
-
-    Note over P: comes in through door A
-    P-->>A: advert, strong
-    P-->>S: advert, weak
-    A->>HA: 1a2b3c4d at -58
-    S->>HA: 1a2b3c4d at -79
-    Note over P: middle of the space
-    P-->>S: advert, strong
-    S->>HA: 1a2b3c4d at -66
-    Note over P: leaves through door B
-    P-->>B: advert, strong
-    B->>HA: 1a2b3c4d at -57
-    Note over HA: nothing heard for 20 s
-    HA->>HA: one visit: entered A, left B
-```
+<img src="docs/walk-through.png" width="760" alt="Sequence of reports as one phone walks in through door A and out through door B">
 
 All four nodes hear the same phone, but because they report the same id it is one track and one visit.
 
 ### What counts as a visit
 
-```mermaid
-flowchart TD
-    gone["Device not heard for gone_after seconds"] --> hits{"Heard at least<br/>min_hits times?"}
-    hits -- no --> noise["Ignored: heard too briefly"]
-    hits -- yes --> dwell{"Stayed longer<br/>than max_dwell?"}
-    dwell -- yes --> stationary["Ignored: stayed too long"]
-    dwell -- no --> near{"Some node heard it at<br/>enter_rssi or stronger?"}
-    near -- no --> far["Ignored: never close"]
-    near -- yes --> two{"Two different nodes heard it<br/>at confirm_rssi or stronger?"}
-    two -- no --> outside["Ignored: one node only"]
-    two -- yes --> visit["Counted as one visit"]
-    visit --> doors["Entry door: strongest door node in the first seconds<br/>Exit door: strongest door node in the last seconds"]
-```
+<img src="docs/counting-rules.png" width="440" alt="Decision flow: which devices are counted as a visit and which are ignored">
 
 The "two different nodes" rule is what tells someone inside from someone walking past a glass door or sitting in the next room: a person among the nodes comes close to two of them, a person beyond one node is close to that node only. `confirm_rssi` is worked out from your node positions, as the signal strength expected at 75% of the distance between the two closest nodes.
 
@@ -251,3 +203,4 @@ pytest
 - `custom_components/ble_footfall/tracker.py` is the whole counting engine. It has no Home Assistant imports and can be driven from a script or notebook.
 - `tests/sim.py` simulates people walking past the four nodes; `tests/test_tracker.py` uses it to test the rules, and `tests/test_integration.py` replays a walk through a running Home Assistant.
 - To check the firmware: `python tools/footfall.py check`, or `esphome compile esphome/door-a.yaml`.
+- The diagrams are committed as images so they show everywhere. Their sources are `docs/*.mmd` (Mermaid) and `docs/layout.svg`. After editing one, re-render it, for example `npx @mermaid-js/mermaid-cli -i docs/data-flow.mmd -o docs/data-flow.png -s 2`.

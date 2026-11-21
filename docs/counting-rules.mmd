@@ -1,0 +1,11 @@
+flowchart TD
+    gone["Device not heard for gone_after seconds"] --> hits{"Heard at least<br/>min_hits times?"}
+    hits -- no --> brief["Ignored: heard too briefly"]
+    hits -- yes --> dwell{"Stayed longer<br/>than max_dwell?"}
+    dwell -- yes --> lingered["Ignored: stayed too long"]
+    dwell -- no --> near{"Some node heard it at<br/>enter_rssi or stronger?"}
+    near -- no --> distant["Ignored: never close"]
+    near -- yes --> two{"Two different nodes heard it<br/>at confirm_rssi or stronger?"}
+    two -- no --> onenode["Ignored: one node only"]
+    two -- yes --> counted["Counted as one visit"]
+    counted --> doors["Entry door: strongest door node in the first seconds<br/>Exit door: strongest door node in the last seconds"]

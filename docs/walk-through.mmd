@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant P as Phone
+    participant A as door-a
+    participant S as side-c, side-d
+    participant B as door-b
+    participant HA as Home Assistant
+
+    Note over P,A: comes in through door A
+    P-->>A: advert, strong
+    P-->>S: advert, weak
+    A->>HA: 1a2b3c4d at -58
+    S->>HA: 1a2b3c4d at -79
+    Note over P,S: middle of the space
+    P-->>S: advert, strong
+    S->>HA: 1a2b3c4d at -66
+    Note over P,B: leaves through door B
+    P-->>B: advert, strong
+    B->>HA: 1a2b3c4d at -57
+    Note over B,HA: nothing heard for 20 s
+    HA->>HA: one visit, entered A, left B

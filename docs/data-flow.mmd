@@ -1,0 +1,14 @@
+flowchart TB
+    devices(["Phones, watches, earbuds"])
+    subgraph esp["4 x ESP32 with ESPHome"]
+        direction LR
+        listen["Listen for BLE adverts"] --> strongest["Keep strongest RSSI<br/>per device, per 2 s"] --> anon["Replace MAC with<br/>salted daily id"]
+    end
+    subgraph ha["Home Assistant: ble_footfall"]
+        direction LR
+        merge["Merge reports by id"] --> locate["Estimate position"] --> decide["Decide when the<br/>device has gone"]
+    end
+    devices -- "BLE adverts" --> esp
+    esp -- "esphome.ble_footfall event every 2 s" --> ha
+    ha --> counters["Counter sensors"]
+    ha --> visitevent["ble_footfall_visit event"]
