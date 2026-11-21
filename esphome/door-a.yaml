@@ -4,7 +4,6 @@
 substitutions:
   name: footfall-door-a
   friendly_name: Footfall door A
-  # board: esp32-c6-devkitc-1   # uncomment if this node is an ESP32-C6 kit instead
 
 packages:
   node: !include common/footfall-node.yaml

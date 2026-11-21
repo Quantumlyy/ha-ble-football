@@ -1,0 +1,26 @@
+# Extra settings for single-core boards (ESP32-C6, ESP32-C3). Include this
+# next to footfall-node.yaml in the node file.
+#
+# On a single core, WiFi and Bluetooth scanning share one processor, and
+# scanning while WiFi is still connecting is known to cause connection
+# problems. This is ESPHome's documented workaround: scan only while Home
+# Assistant is connected.
+
+esp32_ble_tracker:
+  scan_parameters:
+    continuous: false
+
+api:
+  on_client_connected:
+    - esp32_ble_tracker.start_scan:
+        continuous: true
+  on_client_disconnected:
+    # Fires for every departing client, including log viewers. Only stop
+    # scanning once Home Assistant itself has gone.
+    - if:
+        condition:
+          not:
+            api.connected:
+              state_subscription_only: true
+        then:
+          - esp32_ble_tracker.stop_scan:

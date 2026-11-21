@@ -72,18 +72,20 @@ Positions are a weighted average of the node positions, weighted by signal stren
 |---|---|---|
 | `footfall-door-a` | M5Stack CoreS3 | The two door nodes are the same model, so their readings compare directly. |
 | `footfall-door-b` | M5Stack CoreS3 | |
-| `footfall-side-c` | M5Stack CoreS3 | |
-| `footfall-side-d` | ESP32-S3-DevKitC-1 | The odd one out goes on a side wall, where a small difference matters least. See [Mixed boards](#mixed-boards). |
+| `footfall-side-c` | ESP32-S3-DevKitC-1 | |
+| `footfall-side-d` | ESP32-C6-DevKitC-1 | Single core, so it scans only while Home Assistant is connected (`common/single-core.yaml`). |
 
-All four are ESP32-S3, so they run the same firmware build.
+The two side nodes are different models from the door nodes and from each other. That is fine on the side walls, where a small difference matters least, but calibrate them: see [Mixed boards](#mixed-boards).
 
-Not used:
+Why the C6 goes on a side wall: a visit needs two nodes to hear the device, and both doors plus the other side node still cover that if the C6 ever drops off WiFi for a moment. The door nodes decide entry and exit, so those stay on the dual-core boards.
 
-| Board | Why |
+Spares and boards that cannot be used:
+
+| Board | |
 |---|---|
-| ESP32-C6-DevKitC-1 (4) | Single core, so WiFi and Bluetooth scanning compete and WiFi may drop. Usable as spares: set `board: esp32-c6-devkitc-1` in the node file. |
-| ESP32-H2-DevKitM-1 | No WiFi. |
-| nRF52-DK | No WiFi. |
+| ESP32-C6-DevKitC-1 (3 more) | Spares. To swap one in, set `board: esp32-c6-devkitc-1` in the node file and add the `single_core` package line, as `side-d.yaml` does. |
+| ESP32-H2-DevKitM-1 | No WiFi, cannot be used. |
+| nRF52-DK | No WiFi, cannot be used. |
 
 ## Deploy
 
@@ -110,7 +112,7 @@ The first flash of each board must be over USB. After that, updates go over WiFi
 
    **M5Stack CoreS3:** before flashing, hold the RST button for 3 seconds until the green light comes on, then let go. That puts it in download mode. Press RST once after flashing. The screen stays dark with this firmware; that is expected.
 
-   **ESP32-S3-DevKitC-1:** it has two USB sockets. Use the one marked USB. If flashing does not start, hold BOOT, tap RST, release BOOT, and try again.
+   **ESP32-S3-DevKitC-1 and ESP32-C6-DevKitC-1:** each has two USB sockets. Use the one marked USB. If flashing does not start, hold BOOT, tap RST, release BOOT, and try again.
 6. Later updates: **Install > Wirelessly**.
 
 #### Option B: from a laptop
@@ -212,9 +214,10 @@ Different board models hear the same phone at slightly different strengths. To e
 
 1. Before mounting, put all four boards side by side and a single phone 2 m away, with no other devices closer.
 2. After a few minutes, compare the four Strongest signal readings.
-3. If the odd board reads, say, 4 dB lower than the others, give it `rssi_offset: 4` in `configuration.yaml`:
+3. Take the two CoreS3 door nodes as the reference. If another board reads, say, 4 dB lower than they do, give it `rssi_offset: 4` in `configuration.yaml`; if it reads 3 dB higher, `rssi_offset: -3`:
 
    ```yaml
+   footfall-side-c: { x: 2.8, y: 3.2, rssi_offset: -3 }
    footfall-side-d: { x: 2.8, y: 0, rssi_offset: 4 }
    ```
 
