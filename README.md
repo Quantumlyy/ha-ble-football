@@ -239,13 +239,37 @@ Whether a notice is required where you install this depends on local rules. Coun
 
 ## Development
 
+There are two test suites, because the firmware tools and Home Assistant do not install cleanly into one environment.
+
+**Integration and counting logic** (needs Home Assistant's test tooling):
+
 ```sh
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements-test.txt
 pytest
 ```
 
+**Node firmware** (needs ESPHome and a C++ compiler; no board):
+
+```sh
+python -m venv .venv-firmware && . .venv-firmware/bin/activate
+pip install -r requirements-firmware-test.txt
+pytest tests_firmware
+```
+
+What each layer covers:
+
+| Layer | Tested by | How |
+|---|---|---|
+| Bluetooth scan on the board | Nothing automated | Needs a real board and a phone. See [Check it works](#4-check-it-works). |
+| Node logic: strongest reading per device, id hashing, report format, buffer limit | `tests_firmware/test_footfall_header.py` | Compiles `esphome/common/footfall.h` natively and checks it against an independent Python version of the hash and the integration's own parser. |
+| Node reporting: interval, clock, salt, the event sent to Home Assistant | `tests_firmware/test_host_node.py` | Builds `esphome/common/footfall-report.yaml`, the same file the boards use, as a desktop program with ESPHome's host platform, feeds it made-up observations and connects to it the way Home Assistant does. |
+| Merging, positions, counting rules | `tests/test_tracker.py` | Simulated people walking past four nodes (`tests/sim.py`). |
+| Home Assistant side: events in, sensors and visit events out | `tests/test_integration.py`, `tests/test_examples.py` | Runs inside a real Home Assistant test instance. |
+
+Other notes:
+
 - `custom_components/ble_footfall/tracker.py` is the whole counting engine. It has no Home Assistant imports and can be driven from a script or notebook.
-- `tests/sim.py` simulates people walking past the four nodes; `tests/test_tracker.py` uses it to test the rules, and `tests/test_integration.py` replays a walk through a running Home Assistant.
-- To check the firmware: `python tools/footfall.py check`, or `esphome compile esphome/door-a.yaml`.
+- The node firmware is split in two so that the reporting half can run on a desktop: `footfall-node.yaml` holds everything tied to hardware (board, WiFi, the scan), `footfall-report.yaml` holds what happens to the observations.
+- To check the firmware builds for the boards: `python tools/footfall.py check`, or `esphome compile esphome/door-a.yaml`.
 - The diagrams are committed as images so they show everywhere. Their sources are `docs/*.mmd` (Mermaid) and `docs/layout.svg`. After editing one, re-render it, for example `npx @mermaid-js/mermaid-cli -i docs/data-flow.mmd -o docs/data-flow.png -s 2`.

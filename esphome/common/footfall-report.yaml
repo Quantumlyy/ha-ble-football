@@ -1,0 +1,68 @@
+# The reporting half of a footfall node: turns the observations collected by
+# footfall.h into one "esphome.ble_footfall" event per interval.
+#
+# Nothing in here touches hardware. footfall-node.yaml includes it on the real
+# boards, and tests_firmware/ runs it as a desktop program to check the event
+# that comes out.
+
+substitutions:
+  report_interval: 2s      # Keep in step with the integration's fix_window.
+  salt: !secret footfall_salt   # Must be identical on all nodes.
+
+esphome:
+  includes:
+    - common/footfall.h
+
+# The day number from Home Assistant's clock goes into the id hash, so every
+# node rotates ids at the same moment (00:00 UTC).
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  # Placement aid: how many devices this node hears, averaged per minute.
+  - platform: template
+    id: devices_heard
+    name: "Devices heard"
+    icon: mdi:bluetooth
+    entity_category: diagnostic
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - throttle_average: 60s
+
+  # Calibration aid: the strongest signal this node hears, averaged per minute.
+  # With one phone held 1 m away and nothing else nearby, this is rssi_at_1m.
+  - platform: template
+    id: strongest_signal
+    name: "Strongest signal"
+    icon: mdi:signal
+    entity_category: diagnostic
+    device_class: signal_strength
+    unit_of_measurement: dBm
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - throttle_average: 60s
+
+interval:
+  - interval: ${report_interval}
+    then:
+      - lambda: |-
+          id(devices_heard).publish_state(footfall::pending());
+          if (footfall::pending() > 0) id(strongest_signal).publish_state(footfall::strongest());
+      - if:
+          condition:
+            and:
+              - api.connected:
+              - lambda: return id(ha_time).now().is_valid() && footfall::pending() > 0;
+          then:
+            - homeassistant.event:
+                event: esphome.ble_footfall
+                data:
+                  node: ${name}
+                  devs: !lambda |-
+                    return footfall::drain("${salt}", (uint32_t) (id(ha_time).now().timestamp / 86400));
+          else:
+            # Not connected or no valid clock yet: drop the interval, never queue it.
+            - lambda: footfall::clear();

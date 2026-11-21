@@ -34,7 +34,7 @@ from .const import (
     SIGNAL_UPDATE,
     SWEEP_SECONDS,
 )
-from .tracker import Engine, Node, Settings
+from .tracker import Engine, Node, Settings, parse_sightings
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,20 +69,6 @@ CONFIG_SCHEMA = vol.Schema(
     },
     extra=vol.ALLOW_EXTRA,
 )
-
-
-def parse_sightings(raw: str) -> dict[str, float]:
-    """Parse the node payload ``"1a2b3c4d:-61;9f8e7d6c:-74;"``."""
-    out: dict[str, float] = {}
-    for item in raw.split(";"):
-        dev, sep, rssi = item.partition(":")
-        if not sep or not dev:
-            continue
-        try:
-            out[dev] = float(rssi)
-        except ValueError:
-            continue
-    return out
 
 
 class FootfallHub:

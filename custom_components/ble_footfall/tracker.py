@@ -31,6 +31,24 @@ STATIONARY = "stationary"  # stayed longer than max_dwell
 REJECT_REASONS = (NOISE, FAR, OUTSIDE, STATIONARY)
 
 
+def parse_sightings(raw: str) -> dict[str, float]:
+    """Parse a node's report, ``"1a2b3c4d:-61;9f8e7d6c:-74;"``, into id -> RSSI.
+
+    The format is produced by footfall::drain() in esphome/common/footfall.h.
+    Malformed items are skipped.
+    """
+    out: dict[str, float] = {}
+    for item in raw.split(";"):
+        dev, sep, rssi = item.partition(":")
+        if not sep or not dev:
+            continue
+        try:
+            out[dev] = float(rssi)
+        except ValueError:
+            continue
+    return out
+
+
 @dataclass(frozen=True)
 class Node:
     """A scanner at a known position (metres, any origin)."""
