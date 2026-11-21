@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 500" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="14">
+  <title>Site layout, doors at the west and east ends</title>
+  <rect width="860" height="500" fill="#ffffff"/>
+  <defs><marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <rect x="130" y="80.0" width="560.0" height="320.0" fill="#f6f5f1" stroke="#c0392b" stroke-width="2.5"/>
+  <line x1="490.0" y1="80.0" x2="490.0" y2="400.0" stroke="#d4b106" stroke-width="4"/>
+  <line x1="130" y1="58" x2="490.0" y2="58" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="130" y1="53" x2="130" y2="63" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="490.0" y1="53" x2="490.0" y2="63" stroke="#5f5e5a" stroke-width="1.2"/>
+  <text x="310.0" y="49" text-anchor="middle" fill="#5f5e5a">about 3.6 m</text>
+  <line x1="490.0" y1="58" x2="690.0" y2="58" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="490.0" y1="53" x2="490.0" y2="63" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="690.0" y1="53" x2="690.0" y2="63" stroke="#5f5e5a" stroke-width="1.2"/>
+  <text x="590.0" y="49" text-anchor="middle" fill="#5f5e5a">about 2.0 m</text>
+  <line x1="130" y1="450" x2="690.0" y2="450" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="130" y1="445" x2="130" y2="455" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="690.0" y1="445" x2="690.0" y2="455" stroke="#5f5e5a" stroke-width="1.2"/>
+  <text x="410.0" y="441" text-anchor="middle" fill="#5f5e5a">about 5.6 m</text>
+  <line x1="740.0" y1="80.0" x2="740.0" y2="400.0" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="735.0" y1="80.0" x2="745.0" y2="80.0" stroke="#5f5e5a" stroke-width="1.2"/>
+  <line x1="735.0" y1="400.0" x2="745.0" y2="400.0" stroke="#5f5e5a" stroke-width="1.2"/>
+  <text x="752.0" y="245.0" fill="#5f5e5a">about 3.2 m</text>
+  <line x1="130.0" y1="180.0" x2="130.0" y2="300.0" stroke="#ffffff" stroke-width="7"/>
+  <line x1="130.0" y1="180.0" x2="130.0" y2="300.0" stroke="#1d9e75" stroke-width="3.5" stroke-dasharray="7 5"/>
+  <line x1="690.0" y1="180.0" x2="690.0" y2="300.0" stroke="#ffffff" stroke-width="7"/>
+  <line x1="690.0" y1="180.0" x2="690.0" y2="300.0" stroke="#1d9e75" stroke-width="3.5" stroke-dasharray="7 5"/>
+  <line x1="40.0" y1="240.0" x2="715.0" y2="240.0" stroke="#185fa5" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <circle cx="130.0" cy="240.0" r="10" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1.8"/>
+  <text x="148.0" y="268.0" text-anchor="start" fill="#2c2c2a">footfall-door-a</text>
+  <text x="148.0" y="286.0" text-anchor="start" fill="#5f5e5a">x 0, y 1.6, door A</text>
+  <circle cx="690.0" cy="240.0" r="10" fill="#9fe1cb" stroke="#0f6e56" stroke-width="1.8"/>
+  <text x="672.0" y="268.0" text-anchor="end" fill="#2c2c2a">footfall-door-b</text>
+  <text x="672.0" y="286.0" text-anchor="end" fill="#5f5e5a">x 5.6, y 1.6, door B</text>
+  <circle cx="410.0" cy="80.0" r="10" fill="#cecbf6" stroke="#534ab7" stroke-width="1.8"/>
+  <text x="410.0" y="114.0" text-anchor="middle" fill="#2c2c2a">footfall-side-c</text>
+  <text x="410.0" y="132.0" text-anchor="middle" fill="#5f5e5a">x 2.8, y 3.2</text>
+  <circle cx="410.0" cy="400.0" r="10" fill="#cecbf6" stroke="#534ab7" stroke-width="1.8"/>
+  <text x="410.0" y="360.0" text-anchor="middle" fill="#2c2c2a">footfall-side-d</text>
+  <text x="410.0" y="378.0" text-anchor="middle" fill="#5f5e5a">x 2.8, y 0</text>
+  <text x="120" y="420.0" text-anchor="end" fill="#5f5e5a">origin (0, 0)</text>
+  <path d="M60 130V86M52 96L60 84L68 96" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="60" y="150" text-anchor="middle" fill="#5f5e5a">N</text>
+  <g fill="#5f5e5a">
+    <line x1="130" y1="478" x2="160" y2="478" stroke="#c0392b" stroke-width="2.5"/><text x="168" y="483">outline as marked</text>
+    <line x1="310" y1="478" x2="340" y2="478" stroke="#d4b106" stroke-width="4"/><text x="348" y="483">dividing line</text>
+    <line x1="460" y1="478" x2="490" y2="478" stroke="#1d9e75" stroke-width="3.5" stroke-dasharray="7 5"/><text x="498" y="483">sliding door (assumed position)</text>
+  </g>
+</svg>

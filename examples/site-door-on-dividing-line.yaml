@@ -1,0 +1,16 @@
+# Site layout, variant 2: one sliding door at the west end, the other on the
+# dividing line 3.6 m in. See docs/site/README.md for the measurements and
+# the diagram.
+#
+# Origin is the south-west corner of the outline; x runs east, y runs north.
+# Distances are estimates, good to about 0.3 m.
+#
+# The door nodes are only 3.6 m apart here, so expect entry and exit doors to
+# be wrong more often than in variant 1. Visit counts are not affected.
+
+ble_footfall:
+  nodes:
+    footfall-door-a: { x: 0,   y: 1.6, door: A }   # west end
+    footfall-door-b: { x: 3.6, y: 1.6, door: B }   # on the dividing line
+    footfall-side-c: { x: 1.8, y: 3.2 }            # north wall
+    footfall-side-d: { x: 1.8, y: 0 }              # south wall

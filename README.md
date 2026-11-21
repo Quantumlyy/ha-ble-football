@@ -72,6 +72,8 @@ Positions are a weighted average of the node positions, weighted by signal stren
 - Mount them at 1.5 to 2.5 m, away from metal, not inside metal enclosures.
 - Measure each node's position in metres from any corner. You need these numbers in step 3.
 
+For the first site, the estimated dimensions and two candidate layouts with ready-made configs are in [`docs/site/`](docs/site/README.md).
+
 ### 2. Flash the nodes
 
 The first flash of each board must be over USB. After that, updates go over WiFi and can be done from anywhere that can reach Home Assistant.

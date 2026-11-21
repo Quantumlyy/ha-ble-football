@@ -1,0 +1,13 @@
+# Site layout, variant 1: sliding doors at the west and east ends of the outline.
+# See docs/site/README.md for the measurements and the diagram.
+#
+# Origin is the south-west corner of the outline; x runs east, y runs north.
+# Distances are estimates, good to about 0.3 m. That is accurate enough:
+# positions here only need to be right to within half a metre or so.
+
+ble_footfall:
+  nodes:
+    footfall-door-a: { x: 0,   y: 1.6, door: A }   # west end
+    footfall-door-b: { x: 5.6, y: 1.6, door: B }   # east end
+    footfall-side-c: { x: 2.8, y: 3.2 }            # north wall
+    footfall-side-d: { x: 2.8, y: 0 }              # south wall
