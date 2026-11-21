@@ -6,7 +6,9 @@
 # heard and how strongly. All counting happens in the ble_footfall integration.
 
 substitutions:
-  board: esp32dev          # ESP32-DevKitC. For an S3 kit use esp32-s3-devkitc-1.
+  # Works for the ESP32-S3-DevKitC-1 and the M5Stack CoreS3 (also an ESP32-S3).
+  # Other kits: esp32-c6-devkitc-1 (single core, see README), esp32dev (classic).
+  board: esp32-s3-devkitc-1
   report_interval: 2s      # Keep in step with the integration's fix_window.
   rssi_floor: "-90"        # dBm. Anything weaker is ignored on the node.
   salt: !secret footfall_salt   # Must be identical on all nodes.
@@ -62,6 +64,20 @@ sensor:
     filters:
       - throttle_average: 60s
 
+  # Calibration aid: the strongest signal this node hears, averaged per minute.
+  # With one phone held 1 m away and nothing else nearby, this is rssi_at_1m.
+  - platform: template
+    id: strongest_signal
+    name: "Strongest signal"
+    icon: mdi:signal
+    entity_category: diagnostic
+    device_class: signal_strength
+    unit_of_measurement: dBm
+    state_class: measurement
+    accuracy_decimals: 0
+    filters:
+      - throttle_average: 60s
+
   - platform: wifi_signal
     name: "WiFi signal"
     update_interval: 60s
@@ -76,7 +92,9 @@ esp32_ble_tracker:
 interval:
   - interval: ${report_interval}
     then:
-      - lambda: id(devices_heard).publish_state(footfall::pending());
+      - lambda: |-
+          id(devices_heard).publish_state(footfall::pending());
+          if (footfall::pending() > 0) id(strongest_signal).publish_state(footfall::strongest());
       - if:
           condition:
             and:

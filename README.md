@@ -10,6 +10,7 @@ Nobody is identified. The boards only report a scrambled id that changes every d
 
 - [How it works](#how-it-works)
 - [What you need](#what-you-need)
+  - [Boards for the first deployment](#boards-for-the-first-deployment)
 - [Deploy](#deploy)
   - [1. Place the nodes](#1-place-the-nodes)
   - [2. Flash the nodes](#2-flash-the-nodes)
@@ -17,6 +18,8 @@ Nobody is identified. The boards only report a scrambled id that changes every d
   - [4. Check it works](#4-check-it-works)
 - [What you get in Home Assistant](#what-you-get-in-home-assistant)
 - [Tuning](#tuning)
+  - [Calibrating to the site](#calibrating-to-the-site)
+  - [Mixed boards](#mixed-boards)
 - [Privacy](#privacy)
 - [Limits](#limits)
 - [Development](#development)
@@ -58,10 +61,29 @@ Positions are a weighted average of the node positions, weighted by signal stren
 
 ## What you need
 
-- 4 ESP32 dev kits. Dual-core ones are best: ESP32-DevKitC (the default in the configs) or ESP32-S3-DevKitC-1. The onboard antenna is enough. Modules whose name ends in "U" have no onboard antenna and will not work without an external one.
+- 4 ESP32 boards with WiFi and Bluetooth. Dual-core ones are best: anything ESP32-S3 (the default in the configs) or a classic ESP32-DevKitC. The onboard antenna is enough. Modules whose name ends in "U" have no onboard antenna and will not work without an external one.
 - 4 USB power supplies and cables.
 - WiFi at the site that reaches all four spots.
 - Home Assistant on the same network.
+
+### Boards for the first deployment
+
+| Node | Board | Notes |
+|---|---|---|
+| `footfall-door-a` | M5Stack CoreS3 | The two door nodes are the same model, so their readings compare directly. |
+| `footfall-door-b` | M5Stack CoreS3 | |
+| `footfall-side-c` | M5Stack CoreS3 | |
+| `footfall-side-d` | ESP32-S3-DevKitC-1 | The odd one out goes on a side wall, where a small difference matters least. See [Mixed boards](#mixed-boards). |
+
+All four are ESP32-S3, so they run the same firmware build.
+
+Not used:
+
+| Board | Why |
+|---|---|
+| ESP32-C6-DevKitC-1 (4) | Single core, so WiFi and Bluetooth scanning compete and WiFi may drop. Usable as spares: set `board: esp32-c6-devkitc-1` in the node file. |
+| ESP32-H2-DevKitM-1 | No WiFi. |
+| nRF52-DK | No WiFi. |
 
 ## Deploy
 
@@ -85,6 +107,10 @@ The first flash of each board must be over USB. After that, updates go over WiFi
 3. In ESPHome Device Builder, open **Secrets** (top right) and paste in the contents of `esphome/secrets.yaml.example` with real values filled in. Use the same salt for every node.
 4. Four cards appear: `footfall-door-a`, `footfall-door-b`, `footfall-side-c`, `footfall-side-d`. For each one, plug the board into your computer, then choose **Install > Plug into this computer** on its card. This needs Chrome or Edge. If that choice is missing, pick **Manual download** and flash the file at [web.esphome.io](https://web.esphome.io).
 5. Label each board with its name as you go. Which board goes where matters.
+
+   **M5Stack CoreS3:** before flashing, hold the RST button for 3 seconds until the green light comes on, then let go. That puts it in download mode. Press RST once after flashing. The screen stays dark with this firmware; that is expected.
+
+   **ESP32-S3-DevKitC-1:** it has two USB sockets. Use the one marked USB. If flashing does not start, hold BOOT, tap RST, release BOOT, and try again.
 6. Later updates: **Install > Wirelessly**.
 
 #### Option B: from a laptop
@@ -159,7 +185,7 @@ peak_rssi: -57
 path: [[1.2, 2.0], [3.8, 2.1], [6.9, 2.0]]
 ```
 
-Each node additionally reports **Devices heard** and **WiFi signal**.
+Each node additionally reports **Devices heard**, **Strongest signal** and **WiFi signal**.
 
 ## Tuning
 
@@ -174,7 +200,23 @@ All settings are optional keys under `ble_footfall:`. Change one thing at a time
 | Same person counted twice within a minute | Their signal dropped out briefly | Raise `gone_after` |
 | Entry and exit doors often wrong | Door nodes too close together | Move them apart; nothing in software fixes this |
 
-If one board consistently reads a few dB stronger or weaker than the others, give that node an `rssi_offset`.
+### Calibrating to the site
+
+Each node's **Strongest signal** sensor shows the strongest device it hears, averaged per minute.
+
+- **`rssi_at_1m`:** with the space otherwise empty, hold a phone 1 m from a door node for a few minutes. That node's Strongest signal is your `rssi_at_1m`.
+
+### Mixed boards
+
+Different board models hear the same phone at slightly different strengths. To even them out:
+
+1. Before mounting, put all four boards side by side and a single phone 2 m away, with no other devices closer.
+2. After a few minutes, compare the four Strongest signal readings.
+3. If the odd board reads, say, 4 dB lower than the others, give it `rssi_offset: 4` in `configuration.yaml`:
+
+   ```yaml
+   footfall-side-d: { x: 2.8, y: 0, rssi_offset: 4 }
+   ```
 
 To turn counts into people, count by hand for an hour and compare. The ratio is your correction factor.
 

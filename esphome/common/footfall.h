@@ -8,6 +8,7 @@
 // the hash changes every UTC day so ids cannot be linked across days.
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <string>
@@ -50,6 +51,18 @@ inline void observe(uint64_t addr, int rssi, int floor) {
 }
 
 inline size_t pending() { return buffer().size(); }
+
+// Strongest RSSI heard since the last report, or NAN if nothing was heard.
+// Used for calibration: hold one phone 1 m from the node and read this.
+inline float strongest() {
+  const auto &buf = buffer();
+  if (buf.empty()) return NAN;
+  int best = -127;
+  for (const auto &s : buf) {
+    if (s.rssi > best) best = s.rssi;
+  }
+  return (float) best;
+}
 
 inline void clear() { buffer().clear(); }
 
